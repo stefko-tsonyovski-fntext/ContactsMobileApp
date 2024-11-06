@@ -1,8 +1,10 @@
-import { StyleSheet } from "react-native";
+import { Pressable, StyleSheet } from "react-native";
 import { Avatar, Card } from "react-native-paper";
 import { ThemedView } from "../ThemedView";
 import { ThemedText } from "../ThemedText";
 import { Colors } from "@/constants/Colors";
+import { Contact } from "./ContactsList";
+import { Link } from "expo-router";
 
 export const CONTACT_TYPES = {
   WORK: "WORK",
@@ -12,13 +14,10 @@ export const CONTACT_TYPES = {
 };
 
 export type ContactsCardProps = {
-  profileImageUri?: string;
-  firstName: string;
-  lastName: string;
-  contactType: "WORK" | "BUSINESS" | "PERSONAL" | "OTHER";
+  contact: Contact;
 };
 
-const renderContactType = (
+export const renderContactType = (
   contactType: "WORK" | "BUSINESS" | "PERSONAL" | "OTHER"
 ) => {
   let contactTypeText = "Work contact";
@@ -34,38 +33,38 @@ const renderContactType = (
   return contactTypeText;
 };
 
-export default function ContactsCard({
-  profileImageUri,
-  firstName,
-  lastName,
-  contactType,
-}: ContactsCardProps) {
+export default function ContactsCard({ contact }: ContactsCardProps) {
+  // Other variables
+  const { id, profileImageUri, fullName, contactType } = contact;
+
   return (
-    <Card style={styles.cardContainer}>
-      <Card.Cover
-        source={{ uri: profileImageUri ?? "https://picsum.photos/700" }}
-      />
+    <Link href={{ pathname: "/contacts/[id]", params: { id } }} asChild>
+      <Pressable>
+        <Card style={styles.cardContainer}>
+          <Card.Cover
+            source={{ uri: profileImageUri ?? "https://picsum.photos/700" }}
+          />
 
-      <Card.Actions>
-        <ThemedView style={styles.cardActionsContainer}>
-          <ThemedView>
-            <Avatar.Image size={40} source={{ uri: profileImageUri }} />
-          </ThemedView>
+          <Card.Actions>
+            <ThemedView style={styles.cardActionsContainer}>
+              <ThemedView>
+                <Avatar.Image size={40} source={{ uri: profileImageUri }} />
+              </ThemedView>
 
-          <ThemedView style={styles.nameContainer}>
-            <ThemedText type="defaultSemiBold">
-              {firstName + " " + lastName}
-            </ThemedText>
-            <ThemedText
-              lightColor={Colors.light.icon}
-              darkColor={Colors.dark.icon}
-            >
-              {renderContactType(contactType)}
-            </ThemedText>
-          </ThemedView>
-        </ThemedView>
-      </Card.Actions>
-    </Card>
+              <ThemedView style={styles.nameContainer}>
+                <ThemedText type="defaultSemiBold">{fullName}</ThemedText>
+                <ThemedText
+                  lightColor={Colors.light.icon}
+                  darkColor={Colors.dark.icon}
+                >
+                  {renderContactType(contactType)}
+                </ThemedText>
+              </ThemedView>
+            </ThemedView>
+          </Card.Actions>
+        </Card>
+      </Pressable>
+    </Link>
   );
 }
 

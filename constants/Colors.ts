@@ -16,6 +16,7 @@ export const Colors = {
     tabIconSelected: tintColorLight,
     appBar: "#3d1ccf",
     addButton: "#03DAC5",
+    textInput: "#ECEFF1",
   },
   dark: {
     text: "#ECEDEE",
@@ -26,5 +27,6 @@ export const Colors = {
     tabIconSelected: tintColorDark,
     appBar: "#3d1ccf",
     addButton: "#03DAC5",
+    textInput: "#2C2F33",
   },
 };
