@@ -61,7 +61,7 @@ export default function TabLayout() {
               style={styles.addButtonContainer}
             >
               <Image
-                source={require("../../assets/images/add.png")}
+                source={require("../../../assets/images/add.png")}
                 style={[styles.addImage, { tintColor: tabBarActiveTintColor }]}
               />
             </ThemedView>
