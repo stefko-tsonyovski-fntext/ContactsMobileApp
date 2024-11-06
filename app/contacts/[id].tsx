@@ -1,16 +1,20 @@
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { Colors } from "@/constants/Colors";
 import { Dimensions, StyleSheet } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import { ThemedText } from "@/components/ThemedText";
 import { Image } from "react-native";
 import { ThemedView } from "@/components/ThemedView";
-import { Avatar, TextInput } from "react-native-paper";
+import { Avatar, Button, IconButton, TextInput } from "react-native-paper";
 import { renderContactType } from "@/components/contacts/ContactsCard";
 import { Contact } from "@/components/contacts/ContactsList";
 import { useState } from "react";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { Dropdown, DropdownInputProps } from "react-native-paper-dropdown";
+import { router } from "expo-router";
 
 const contact: Contact = {
   id: "1",
@@ -30,9 +34,13 @@ const OPTIONS = [
 ];
 
 export default function ContactDetailsScreen() {
+  // General hooks
+  const { top } = useSafeAreaInsets();
+
   // Custom hooks
   const backgroundColor = useThemeColor({}, "background");
   const textInputBackgroundColor = useThemeColor({}, "textInput");
+  const appBarColor = useThemeColor({}, "appBar");
 
   // Other variables
   const {
@@ -44,6 +52,7 @@ export default function ContactDetailsScreen() {
     contactAddress,
     contactEmail,
   } = contact;
+
   const windowWidth = Dimensions.get("window").width;
 
   // State
@@ -59,6 +68,9 @@ export default function ContactDetailsScreen() {
   // Other variables
   const value =
     OPTIONS?.find((option) => option.value === contactTypeState)?.label ?? "";
+
+  // Handlers
+  const handleClickClose = () => router.push("/");
 
   return (
     <ParallaxScrollView
@@ -185,6 +197,53 @@ export default function ContactDetailsScreen() {
               </ThemedView>
             </ThemedView>
           </ThemedView>
+
+          <Button
+            style={[
+              styles.saveButton,
+              {
+                backgroundColor: appBarColor,
+              },
+            ]}
+            mode="contained"
+            onPress={() => console.log("Pressed")}
+          >
+            SAVE
+          </Button>
+        </ThemedView>
+
+        <ThemedView
+          style={[
+            styles.contactDetailsPageHeader,
+            { top: top + 5, left: 10, width: windowWidth - 10 },
+          ]}
+        >
+          <ThemedView style={styles.contactDetailsPageHeaderContainer}>
+            <ThemedView style={styles.closeActionContainer}>
+              <IconButton
+                icon="close"
+                iconColor={Colors.light.background}
+                size={25}
+                onPress={handleClickClose}
+              />
+            </ThemedView>
+
+            <ThemedView style={styles.favoriteAndMoreActionsContainer}>
+              <IconButton
+                icon="cards-heart"
+                iconColor={Colors.light.background}
+                size={25}
+                onPress={() => console.log("Pressed")}
+              />
+
+              <IconButton
+                icon="dots-vertical"
+                iconColor={Colors.light.background}
+                size={25}
+                onPress={() => console.log("Pressed")}
+              />
+            </ThemedView>
+          </ThemedView>
         </ThemedView>
       </SafeAreaView>
     </ParallaxScrollView>
@@ -208,5 +267,27 @@ const styles = StyleSheet.create({
   },
   textInputContainer: {
     flex: 1,
+  },
+  contactDetailsPageHeader: {
+    position: "absolute",
+    backgroundColor: "transparent",
+  },
+  contactDetailsPageHeaderContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    backgroundColor: "transparent",
+  },
+  closeActionContainer: {
+    backgroundColor: "transparent",
+  },
+  favoriteAndMoreActionsContainer: {
+    flexDirection: "row",
+    columnGap: 10,
+    paddingHorizontal: 15,
+    backgroundColor: "transparent",
+  },
+  saveButton: {
+    marginTop: 20,
+    borderRadius: 0,
   },
 });
