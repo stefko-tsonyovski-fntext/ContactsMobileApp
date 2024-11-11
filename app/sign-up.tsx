@@ -6,7 +6,7 @@ import { useState } from "react";
 import { StyleSheet, TouchableOpacity } from "react-native";
 import { TextInput, Button, Card, Text } from "react-native-paper";
 
-export default function SignIn() {
+export default function SignUp() {
   // Custom hooks
   const { signIn } = useSession();
   const appBarColor = useThemeColor({}, "appBar");
@@ -14,21 +14,22 @@ export default function SignIn() {
 
   // State
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
 
   // Handlers
-  const handleSignIn = () => {
+  const handleSignUp = () => {
     signIn();
     // Navigate after signing in. You may want to tweak this to ensure sign-in is
     // successful before navigating.
     router.replace("/");
   };
 
-  const handleNavigateSignUp = () => {
+  const handleNavigateSignIn = () => {
     signIn();
     // Navigate after signing in. You may want to tweak this to ensure sign-in is
     // successful before navigating.
-    router.replace("/sign-up");
+    router.replace("/sign-in");
   };
 
   return (
@@ -51,6 +52,16 @@ export default function SignIn() {
           />
 
           <TextInput
+            label="Name"
+            value={name}
+            onChangeText={setName}
+            style={styles.input}
+            mode="outlined"
+            autoCapitalize="none"
+            autoComplete="name"
+          />
+
+          <TextInput
             label="Password"
             value={password}
             onChangeText={setPassword}
@@ -62,7 +73,7 @@ export default function SignIn() {
 
           <Button
             mode="contained"
-            onPress={handleSignIn}
+            onPress={handleSignUp}
             style={[
               styles.button,
               {
@@ -70,15 +81,15 @@ export default function SignIn() {
               },
             ]}
           >
-            Sign In
+            Sign Up
           </Button>
 
           <TouchableOpacity
-            onPress={handleNavigateSignUp}
+            onPress={handleNavigateSignIn}
             style={styles.signUpLink}
           >
             <Text variant="bodyMedium" style={{ color: primaryColor }}>
-              Don’t have an account? Sign Up
+              Already have an account? Sign In
             </Text>
           </TouchableOpacity>
         </Card.Content>

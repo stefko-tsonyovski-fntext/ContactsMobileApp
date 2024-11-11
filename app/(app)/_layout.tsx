@@ -57,7 +57,6 @@ export default function AppLayout() {
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="contacts/[id]" options={{ headerShown: false }} />
-          <Stack.Screen name="+not-found" />
         </Stack>
       </ThemeProvider>
     </PaperProvider>

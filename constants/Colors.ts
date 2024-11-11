@@ -17,6 +17,7 @@ export const Colors = {
     appBar: "#3d1ccf",
     addButton: "#03DAC5",
     textInput: "#ECEFF1",
+    primary: "#757de8",
   },
   dark: {
     text: "#ECEDEE",
@@ -28,5 +29,6 @@ export const Colors = {
     appBar: "#3d1ccf",
     addButton: "#03DAC5",
     textInput: "#2C2F33",
+    primary: "#002984",
   },
 };
