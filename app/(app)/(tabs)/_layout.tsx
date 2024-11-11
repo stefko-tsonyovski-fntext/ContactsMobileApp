@@ -1,4 +1,4 @@
-import { Tabs } from "expo-router";
+import { Tabs, useSegments } from "expo-router";
 import React from "react";
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import { ThemedView } from "@/components/ThemedView";
@@ -10,6 +10,13 @@ export default function TabLayout() {
   const tabBarActiveTintColor = useThemeColor({}, "tint");
   const tabBarBackgroundColor = useThemeColor({}, "appBar");
   const addButtonColor = useThemeColor({}, "addButton");
+  const segment = useSegments();
+
+  // Other variables
+  // get the current page from the segment
+  const page = segment[segment.length - 1];
+  // create an array of list pages you want to hide the tab bar in
+  const pagesToHideTabBar = ["new-contact"];
 
   return (
     <Tabs
@@ -32,6 +39,10 @@ export default function TabLayout() {
               color={color}
             />
           ),
+          tabBarStyle: {
+            // check if the current page is in the list then hide the tab bar
+            display: pagesToHideTabBar.includes(page) ? "none" : "flex",
+          },
         }}
       />
 
