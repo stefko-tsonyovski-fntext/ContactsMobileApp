@@ -25,7 +25,11 @@ export default function TabLayout() {
         headerShown: false,
         tabBarActiveBackgroundColor: tabBarBackgroundColor,
         tabBarInactiveBackgroundColor: tabBarBackgroundColor,
-        tabBarStyle: { flexDirection: "row", justifyContent: "flex-start" },
+        tabBarStyle: {
+          flexDirection: "row",
+          justifyContent: "flex-start",
+          display: pagesToHideTabBar.includes(page) ? "none" : "flex",
+        },
       }}
     >
       <Tabs.Screen
@@ -39,10 +43,6 @@ export default function TabLayout() {
               color={color}
             />
           ),
-          tabBarStyle: {
-            // check if the current page is in the list then hide the tab bar
-            display: pagesToHideTabBar.includes(page) ? "none" : "flex",
-          },
         }}
       />
 
