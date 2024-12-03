@@ -1,6 +1,6 @@
-import { useSession } from "@/auth/auth-context";
 import { ThemedView } from "@/components/ThemedView";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { useRegisterMutation } from "@/store/slices/apiSlice";
 import { router } from "expo-router";
 import { useState } from "react";
 import { StyleSheet, TouchableOpacity } from "react-native";
@@ -8,7 +8,6 @@ import { TextInput, Button, Card, Text } from "react-native-paper";
 
 export default function SignUp() {
   // Custom hooks
-  const { signIn } = useSession();
   const appBarColor = useThemeColor({}, "appBar");
   const primaryColor = useThemeColor({}, "primary");
 
@@ -17,18 +16,23 @@ export default function SignUp() {
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
 
+  // Mutations
+  const [register] = useRegisterMutation();
+
   // Handlers
-  const handleSignUp = () => {
-    signIn();
-    // Navigate after signing in. You may want to tweak this to ensure sign-in is
-    // successful before navigating.
-    router.replace("/");
+  const handleSignUp = async () => {
+    try {
+      const body = { email, password, fullName: name };
+
+      await register({ body }).unwrap();
+
+      router.replace("/sign-in");
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleNavigateSignIn = () => {
-    signIn();
-    // Navigate after signing in. You may want to tweak this to ensure sign-in is
-    // successful before navigating.
     router.replace("/sign-in");
   };
 

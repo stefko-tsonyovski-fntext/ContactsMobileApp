@@ -1,13 +1,22 @@
 import { useStorageState } from "@/hooks/useStorageState";
+import { logout, setCredentials } from "@/store/slices/authSlice";
+import { useAppDispatch } from "@/store/store";
 import { useContext, createContext, type PropsWithChildren } from "react";
 
+export type UserDto = {
+  id: string;
+  email: string;
+  fullName: string;
+  token: string;
+};
+
 const AuthContext = createContext<{
-  signIn: () => void;
+  signIn: (user: UserDto) => void;
   signOut: () => void;
   session?: string | null;
   isLoading: boolean;
 }>({
-  signIn: () => null,
+  signIn: () => {},
   signOut: () => null,
   session: null,
   isLoading: false,
@@ -26,16 +35,22 @@ export function useSession() {
 }
 
 export function SessionProvider({ children }: PropsWithChildren) {
+  // General hooks
+  const dispatch = useAppDispatch();
+
+  // Custom hooks
   const [[isLoading, session], setSession] = useStorageState("session");
 
   return (
     <AuthContext.Provider
       value={{
-        signIn: () => {
+        signIn: (user: UserDto) => {
           // Perform sign-in logic here
-          setSession("xxx");
+          dispatch(setCredentials(user));
+          setSession(user.token);
         },
         signOut: () => {
+          dispatch(logout());
           setSession(null);
         },
         session,

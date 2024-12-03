@@ -5,6 +5,7 @@ import { ThemedText } from "../ThemedText";
 import { Colors } from "@/constants/Colors";
 import { Contact } from "./ContactsList";
 import { Link } from "expo-router";
+import { DEFAULT_IMAGE } from "@/utils/constants";
 
 export const CONTACT_TYPES = {
   WORK: "WORK",
@@ -41,14 +42,17 @@ export default function ContactsCard({ contact }: ContactsCardProps) {
     <Link href={{ pathname: "/contacts/[id]", params: { id } }} asChild>
       <Pressable>
         <Card style={styles.cardContainer}>
-          <Card.Cover
-            source={{ uri: profileImageUri ?? "https://picsum.photos/700" }}
-          />
+          <Card.Cover source={{ uri: profileImageUri ?? DEFAULT_IMAGE }} />
 
           <Card.Actions>
             <ThemedView style={styles.cardActionsContainer}>
               <ThemedView>
-                <Avatar.Image size={40} source={{ uri: profileImageUri }} />
+                <Avatar.Image
+                  size={40}
+                  source={{
+                    uri: profileImageUri ?? DEFAULT_IMAGE,
+                  }}
+                />
               </ThemedView>
 
               <ThemedView style={styles.nameContainer}>

@@ -10,21 +10,19 @@ import { Image } from "react-native";
 import { ThemedView } from "@/components/ThemedView";
 import { Avatar, Button, IconButton, TextInput } from "react-native-paper";
 import { renderContactType } from "@/components/contacts/ContactsCard";
-import { Contact } from "@/components/contacts/ContactsList";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { Dropdown, DropdownInputProps } from "react-native-paper-dropdown";
-import { router } from "expo-router";
-
-const contact: Contact = {
-  id: "1",
-  profileImageUri: "https://picsum.photos/700",
-  fullName: "Stefko Tsonyovski",
-  contactType: "WORK",
-  contactPhone: "0876148608",
-  contactAddress: "str. Sveti Naum 15",
-  contactEmail: "stefko.noisy.boy@gmail.com",
-};
+import { router, useLocalSearchParams } from "expo-router";
+import { useAppSelector } from "@/store/store";
+import { selectToken, selectUserId } from "@/store/slices/authSlice";
+import {
+  useDeleteContactMutation,
+  useEditContactMutation,
+  useGetContactByIdQuery,
+  useGetUserByIdQuery,
+} from "@/store/slices/apiSlice";
+import { DEFAULT_IMAGE } from "@/utils/constants";
 
 const OPTIONS = [
   { label: "Work contact", value: "WORK" },
@@ -36,34 +34,43 @@ const OPTIONS = [
 export default function ContactDetailsScreen() {
   // General hooks
   const { top } = useSafeAreaInsets();
+  const { id } = useLocalSearchParams();
 
   // Custom hooks
   const backgroundColor = useThemeColor({}, "background");
   const textInputBackgroundColor = useThemeColor({}, "textInput");
   const appBarColor = useThemeColor({}, "appBar");
 
+  // Selectors
+  const token = useAppSelector(selectToken);
+  const userId = useAppSelector(selectUserId);
+
+  // Queries
+  const { data: contactData } = useGetContactByIdQuery({
+    token,
+    contactId: id,
+  });
+
+  const { data: userData } = useGetUserByIdQuery({ token, userId });
+
+  // Mutations
+  const [editContact] = useEditContactMutation();
+  const [deleteContact] = useDeleteContactMutation();
+
   // Other variables
-  const {
-    id,
-    profileImageUri,
-    fullName,
-    contactPhone,
-    contactType,
-    contactAddress,
-    contactEmail,
-  } = contact;
+  const { profileImageUri, fullName, phone, contactType, address, email } =
+    contactData ?? {};
 
   const windowWidth = Dimensions.get("window").width;
 
   // State
   const [contactNameState, setContactNameState] = useState(fullName);
-  const [contactPhoneState, setContactPhoneState] = useState(contactPhone);
+  const [contactPhoneState, setContactPhoneState] = useState(phone);
   const [contactTypeState, setContactTypeState] = useState<string | undefined>(
     contactType
   );
-  const [contactAddressState, setContactAddressState] =
-    useState(contactAddress);
-  const [contactEmailState, setContactEmailState] = useState(contactEmail);
+  const [contactAddressState, setContactAddressState] = useState(address);
+  const [contactEmailState, setContactEmailState] = useState(email);
 
   // Other variables
   const value =
@@ -71,6 +78,45 @@ export default function ContactDetailsScreen() {
 
   // Handlers
   const handleClickClose = () => router.push("/");
+
+  const handleSaveContact = async () => {
+    try {
+      const formData = new FormData();
+
+      formData.append("fullName", contactNameState);
+      formData.append("phone", contactPhoneState);
+      formData.append("contactType", contactTypeState as string);
+      formData.append("address", contactAddressState ?? "");
+      formData.append("email", contactEmailState ?? "");
+      formData.append("userId", userData?.id);
+      formData.append("id", id as string);
+
+      await editContact({ token, formData, contactId: id }).unwrap();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleDeleteContact = async () => {
+    try {
+      await deleteContact({ token, contactId: id }).unwrap();
+
+      router.replace("/");
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // Effects
+  useEffect(() => {
+    if (contactData) {
+      setContactNameState(contactData?.fullName);
+      setContactPhoneState(contactData?.phone);
+      setContactTypeState(contactData?.contactType);
+      setContactAddressState(contactData?.address);
+      setContactEmailState(contactData?.email);
+    }
+  }, [contactData]);
 
   return (
     <ParallaxScrollView
@@ -81,7 +127,7 @@ export default function ContactDetailsScreen() {
     >
       <SafeAreaView>
         <Image
-          source={{ uri: profileImageUri }}
+          source={{ uri: profileImageUri ?? DEFAULT_IMAGE }}
           width={windowWidth}
           height={250}
         />
@@ -89,7 +135,10 @@ export default function ContactDetailsScreen() {
         <ThemedView style={styles.contactDetailsContainer}>
           <ThemedView style={styles.contactHeaderContainer}>
             <ThemedView>
-              <Avatar.Image size={40} source={{ uri: profileImageUri }} />
+              <Avatar.Image
+                size={40}
+                source={{ uri: profileImageUri ?? DEFAULT_IMAGE }}
+              />
             </ThemedView>
 
             <ThemedView>
@@ -138,6 +187,7 @@ export default function ContactDetailsScreen() {
                   value={contactPhoneState}
                   onChangeText={(text) => setContactPhoneState(text)}
                   style={{ backgroundColor: textInputBackgroundColor }}
+                  keyboardType="phone-pad"
                 />
               </ThemedView>
 
@@ -193,6 +243,7 @@ export default function ContactDetailsScreen() {
                   value={contactEmailState}
                   onChangeText={(text) => setContactEmailState(text)}
                   style={{ backgroundColor: textInputBackgroundColor }}
+                  keyboardType="email-address"
                 />
               </ThemedView>
             </ThemedView>
@@ -206,9 +257,17 @@ export default function ContactDetailsScreen() {
               },
             ]}
             mode="contained"
-            onPress={() => console.log("Pressed")}
+            onPress={handleSaveContact}
           >
             SAVE
+          </Button>
+
+          <Button
+            style={[styles.saveButton, { backgroundColor: "red" }]}
+            mode="contained"
+            onPress={handleDeleteContact}
+          >
+            DELETE
           </Button>
         </ThemedView>
 

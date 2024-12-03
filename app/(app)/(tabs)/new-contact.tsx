@@ -17,6 +17,12 @@ import { useState } from "react";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { Dropdown, DropdownInputProps } from "react-native-paper-dropdown";
 import { router } from "expo-router";
+import { useAppSelector } from "@/store/store";
+import { selectToken, selectUserId } from "@/store/slices/authSlice";
+import {
+  useCreateContactMutation,
+  useGetUserByIdQuery,
+} from "@/store/slices/apiSlice";
 
 const OPTIONS = [
   { label: "Work contact", value: "WORK" },
@@ -33,6 +39,16 @@ export default function NewContactScreen() {
   const backgroundColor = useThemeColor({}, "background");
   const textInputBackgroundColor = useThemeColor({}, "textInput");
   const appBarColor = useThemeColor({}, "appBar");
+
+  // Selectors
+  const token = useAppSelector(selectToken);
+  const userId = useAppSelector(selectUserId);
+
+  // Queries
+  const { data: userData } = useGetUserByIdQuery({ token, userId });
+
+  // Mutations
+  const [createContact] = useCreateContactMutation();
 
   // Other variables
   const windowWidth = Dimensions.get("window").width;
@@ -52,6 +68,25 @@ export default function NewContactScreen() {
 
   // Handlers
   const handleClickClose = () => router.push("/");
+
+  const handleSaveContact = async () => {
+    try {
+      const formData = new FormData();
+
+      formData.append("fullName", contactNameState);
+      formData.append("phone", contactPhoneState);
+      formData.append("contactType", contactTypeState as string);
+      formData.append("address", contactAddressState ?? "");
+      formData.append("email", contactEmailState ?? "");
+      formData.append("userId", userData?.id);
+
+      await createContact({ token, formData }).unwrap();
+
+      router.replace("/");
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <ParallaxScrollView
@@ -103,6 +138,7 @@ export default function NewContactScreen() {
                   value={contactPhoneState}
                   onChangeText={(text) => setContactPhoneState(text)}
                   style={{ backgroundColor: textInputBackgroundColor }}
+                  keyboardType="phone-pad"
                 />
               </ThemedView>
 
@@ -158,6 +194,7 @@ export default function NewContactScreen() {
                   value={contactEmailState}
                   onChangeText={(text) => setContactEmailState(text)}
                   style={{ backgroundColor: textInputBackgroundColor }}
+                  keyboardType="email-address"
                 />
               </ThemedView>
             </ThemedView>
@@ -171,7 +208,7 @@ export default function NewContactScreen() {
               },
             ]}
             mode="contained"
-            onPress={() => console.log("Pressed")}
+            onPress={handleSaveContact}
           >
             SAVE
           </Button>
